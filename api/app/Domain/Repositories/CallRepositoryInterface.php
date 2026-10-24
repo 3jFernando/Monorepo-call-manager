@@ -11,4 +11,6 @@ interface CallRepositoryInterface
     public function findByCallId(CallId $callId): ?CallSession;
 
     public function existsByPhoneNumber(PhoneNumber $phoneNumber): bool;
+  
+    public function getRecentCalls(int $limit = 15): array;
 }

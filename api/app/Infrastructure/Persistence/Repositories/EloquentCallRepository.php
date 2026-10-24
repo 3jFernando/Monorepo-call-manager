@@ -35,7 +35,17 @@ class EloquentCallRepository implements CallRepositoryInterface
     {
         return CallModel::where('phone_number', $phoneNumber->value)->exists();
     }
-    
+
+    public function getRecentCalls(int $limit = 30): array
+    {
+        return CallModel::query()
+            ->latest('id')
+            ->limit($limit)
+            ->get()
+            ->map(fn (CallModel $model) => $this->toEntityDomain($model))
+            ->all();
+    }
+
     private function toEntityDomain(CallModel $model): CallSession
     {
         $createdAt = $model->created_at ? DateTimeImmutable::createFromInterface($model->created_at) : null;
