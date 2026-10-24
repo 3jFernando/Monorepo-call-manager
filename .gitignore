@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+vendor/
+
+# Environment variables
+.env
+.env.local
+
+# Builds y cachés
+public/build/
+storage/*.key
+bootstrap/cache/*.php
+dist/
+build/
+
+# Sistema operativo (basura)
+.DS_Store
