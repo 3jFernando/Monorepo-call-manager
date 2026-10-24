@@ -49,6 +49,21 @@ services:
       - postgres
       - redis
 
+  front:
+    build:
+      context: ../front
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME}_front
+    restart: always
+    working_dir: /app
+    volumes:
+      - ../front:/app
+      - /app/node_modules # Evitar sobreescritura en el contenedor
+    ports:
+      - "${FRONT_PORT}:5173"
+    networks:
+      - call-net
+
 volumes:
   pgdata:
 
