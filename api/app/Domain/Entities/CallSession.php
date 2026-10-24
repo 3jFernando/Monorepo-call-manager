@@ -1,6 +1,5 @@
 <?php namespace App\Domain\Entities;
 
-use App\Domain\Enums\CallStatus;
 use App\Domain\ValueObjects\{
     CallId,
     PhoneNumber
@@ -12,7 +11,9 @@ class CallSession
     public function __construct(
         public readonly CallId $callId,
         public readonly PhoneNumber $phoneNumber,
-        public CallStatus $status,
+        public readonly string $agent,
+        public readonly int $duration,
+        public readonly string $recordingUrl,
         public readonly bool $hasCalledBefore,
         public bool $isSpam = false,
         public readonly ?int $id = null,
@@ -21,8 +22,22 @@ class CallSession
 
     public function markAsSpam(): void
     {
-        $this->status = CallStatus::SPAM;
         $this->isSpam = true;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'call_id' => $this->callId->value,
+            'phone_number' => $this->phoneNumber->value,
+            'agent' => $this->agent,
+            'duration' => $this->duration,
+            'recording_url' => $this->recordingUrl,
+            'has_called_before' => $this->hasCalledBefore,
+            'is_spam' => $this->isSpam,
+            'created_at' => $this->createdAt?->format(DateTimeImmutable::ATOM),
+        ];
     }
 
 }
