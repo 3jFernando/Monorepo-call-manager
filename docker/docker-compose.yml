@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${APP_NAME}_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - call-net
+
+  redis:
+    image: redis:alpine
+    container_name: ${APP_NAME}_redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - call-net
+
+  api:
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME}_api
+    restart: always
+    working_dir: /var/www/html
+    volumes:
+      - ../api:/var/www/html
+    ports:
+      - "${API_PORT}:8000"
+    command: php artisan serve --host=0.0.0.0 --port=${API_PORT}
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+    networks:
+      - call-net
+    depends_on:
+      - postgres
+      - redis
+
+volumes:
+  pgdata:
+
+networks:
+  call-net: 
+    driver: bridge
