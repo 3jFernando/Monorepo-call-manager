@@ -4,6 +4,7 @@ import { echoClient } from '@/shared/realtime/echoClient';
 import type { Call } from '@/features/calls/types';
 import { CALLS_QUERY_KEYS } from '@/features/calls/constants';
 import { ApiResponse } from '@/shared/types/response.types';
+import playNotificationSound from '@/shared/utils/audioNotification';
 
 export function useCallsRealtime() {
 
@@ -17,22 +18,26 @@ export function useCallsRealtime() {
         // Escuchar evento de llamada entrante
         channel.listen('.CallReceivedEvent', (payload: { call: Call }) => {
 
-           queryClient.setQueryData(CALLS_QUERY_KEYS, (currentCalls: ApiResponse<Call[]>| undefined) => {   
+            playNotificationSound();
+
+            queryClient.setQueryData(CALLS_QUERY_KEYS, (currentCalls: ApiResponse<Call[]> | undefined) => {
 
                 const currentList = Array.isArray(currentCalls)
                     ? currentCalls
                     : (currentCalls?.data ?? []);
-            
-                if (!currentList) return { data: [payload.call] }
+
+                if (!currentList) {
+                    return { data: [payload.call] }
+                }
 
                 const search = currentList.some((call: Call) => call.call_id === payload.call.call_id)
                 if (search) return currentCalls
 
                 return {
-                    ...currentCalls, data: [ payload.call, ...currentList ]
+                    ...currentCalls, data: [payload.call, ...currentList]
                 }
 
-           });
+            });
 
         });
 
