@@ -6,6 +6,8 @@ use App\Domain\Repositories\CallRepositoryInterface;
 use App\Domain\Services\IdempotencyServiceInterface;
 use App\Infrastructure\Persistence\Repositories\EloquentCallRepository;
 use App\Infrastructure\Services\RedisIdempotencyService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +26,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Response::macro('apiResponse', function(
+            int $httpCode = JsonResponse::HTTP_OK,
+            string $message = 'Processed successfully.',
+            array|object|null $data = null
+        ) {
+            $baseResponse = [ 'message' => $message ];
+            if ($data) $baseResponse['data'] = $data;
+            
+            return response()->json($baseResponse, $httpCode);
+        });
     }
 }

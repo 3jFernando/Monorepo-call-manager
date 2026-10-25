@@ -4,6 +4,7 @@ use App\Application\Actions\RegisterIncomingCallAction;
 use App\Application\DTOs\IncomingCallDTO;
 use App\Infrastructure\Http\Requests\IncomingCallRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class IncomingCallWebhookController
 {
@@ -17,9 +18,6 @@ class IncomingCallWebhookController
 
         $result = $this->action->execute($dto);
 
-        return response()->json([
-            'message' => 'Call webhook processed successfully',
-            'data' => $result,
-        ], JsonResponse::HTTP_OK);
+        return Response::apiResponse(data: $result);
     }
 }

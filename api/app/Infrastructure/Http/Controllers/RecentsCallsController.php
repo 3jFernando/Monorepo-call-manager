@@ -3,6 +3,7 @@
 use Illuminate\Http\JsonResponse;
 
 use App\Domain\Repositories\CallRepositoryInterface;
+use Illuminate\Http\Response;
 
 class RecentsCallsController
 {
@@ -14,9 +15,6 @@ class RecentsCallsController
     {
         $getRecentCalls = $this->repository->getRecentCalls();
 
-        return response()->json([
-            'message' => 'Recent calls retrieved successfully',
-            'data' => $getRecentCalls
-        ], JsonResponse::HTTP_OK);
+        return Response::apiResponse(data: $getRecentCalls);
     }
 }
