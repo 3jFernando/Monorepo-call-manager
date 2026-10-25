@@ -9,9 +9,12 @@ use DateTimeImmutable;
 
 class EloquentCallRepository implements CallRepositoryInterface
 {
+
+    public function __construct(private CallModel $model) {}
+
     public function save(CallSession $callSession): CallSession
     {
-        $model = CallModel::updateOrCreate(['call_id' => $callSession->callId->value],
+        $model = $this->model::updateOrCreate(['call_id' => $callSession->callId->value],
             [
                 'phone_number' => $callSession->phoneNumber->value,
                 'agent' => $callSession->agent,
@@ -27,18 +30,18 @@ class EloquentCallRepository implements CallRepositoryInterface
 
     public function findByCallId(CallId $callId): ?CallSession
     {
-        $model = CallModel::where('call_id', $callId->value)->first();
+        $model = $this->model::where('call_id', $callId->value)->first();
         return $model ? $this->toEntityDomain($model) : null;
     }
 
     public function existsByPhoneNumber(PhoneNumber $phoneNumber): bool
     {
-        return CallModel::where('phone_number', $phoneNumber->value)->exists();
+        return $this->model::where('phone_number', $phoneNumber->value)->exists();
     }
 
     public function getRecentCalls(int $limit = 30): array
     {
-        return CallModel::query()
+        return $this->model::query()
             ->latest('id')
             ->limit($limit)
             ->get()

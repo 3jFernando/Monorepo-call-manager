@@ -5,8 +5,9 @@ use App\Domain\ValueObjects\{
     PhoneNumber
 };
 use DateTimeImmutable;
+use JsonSerializable;
 
-class CallSession 
+class CallSession implements JsonSerializable
 {
     public function __construct(
         public readonly CallId $callId,
@@ -23,6 +24,11 @@ class CallSession
     public function markAsSpam(): void
     {
         $this->isSpam = true;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
     }
 
     public function toArray(): array
