@@ -1,0 +1,1 @@
+export const CALLS_QUERY_KEYS = ['calls'] as const

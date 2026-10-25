@@ -1,15 +1,15 @@
 import React from 'react';
 
 import './styles.globals.css';
+import Header from '@/shared/components/layout/header';
+import Home from '@/features/calls/components/views/home'
 
 export default function App() {
   return (
     <div className="container">
-      <header className="header">
-        <h1>📞 Call Manager</h1>
-      </header>
+      <Header />
 
-      
+      <Home />
     </div>
   );
 }
