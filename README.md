@@ -6,7 +6,7 @@ Sistema de gestión y recepción de llamadas entrantes en tiempo real con regist
 
 ## 📸 Vista Previa del Dashboard
 
-![Call Manager Dashboard](./docs/app.png)
+![Call Manager Dashboard](./docs/call-manager.png)
 
 ---
 
