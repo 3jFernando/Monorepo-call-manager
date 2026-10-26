@@ -1,6 +1,6 @@
 export interface Call {
   id: number;
-  call_id: Object;
+  call_id: string;
   phone_number: Object;
   agent: string;
   duration: number;

@@ -16,29 +16,9 @@ export function useCallsRealtime() {
         const channel = echoClient.channel('calls-channel');
 
         // Escuchar evento de llamada entrante
-        channel.listen('.CallReceivedEvent', (payload: { call: Call }) => {
-
+        channel.listen('.CallReceivedEvent', () => {
             playNotificationSound();
-
-            queryClient.setQueryData(CALLS_QUERY_KEYS, (currentCalls: ApiResponse<Call[]> | undefined) => {
-
-                const currentList = Array.isArray(currentCalls)
-                    ? currentCalls
-                    : (currentCalls?.data ?? []);
-
-                if (!currentList) {
-                    return { data: [payload.call] }
-                }
-
-                const search = currentList.some((call: Call) => call.call_id === payload.call.call_id)
-                if (search) return currentCalls
-
-                return {
-                    ...currentCalls, data: [payload.call, ...currentList]
-                }
-
-            });
-
+            queryClient.invalidateQueries({ queryKey: CALLS_QUERY_KEYS });
         });
 
         return () => echoClient.leaveChannel('calls-channel');

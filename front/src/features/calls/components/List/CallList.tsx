@@ -1,17 +1,39 @@
 import React from "react";
 import type { Call } from "@/features/calls/types";
 import { formatDate } from "@/shared/utils/formatDate";
+import { formatTime } from "@/shared/utils/formatTime";
+import { useMarkAsSpam } from "@/features/calls/hooks";
 
-import { Globe, TriangleAlert, Play, CircleCheckBig } from "lucide-react";
+import {
+  Globe,
+  TriangleAlert,
+  Play,
+  CircleCheckBig,
+  Clock,
+} from "lucide-react";
 import { getFirstLetter } from "@/shared/utils/getFirstLetter";
-import { ButtonSpam } from "@/ui";
+import { ButtonSpam, Paginator } from "@/ui";
 
 interface Props {
   calls: Call[];
   isLoading: boolean;
+  currentPage: number;
+  lastPage: number;
+  total: number;
+  onPageChange: (page: number) => void;
 }
 
-export default function CallList({ calls, isLoading }: Props) {
+export default function CallList({
+  calls,
+  isLoading,
+  currentPage,
+  lastPage,
+  total,
+  onPageChange,
+}: Props) {
+  const { mutate: handleMarkSpam, isPending: isLoadingCheckSpam } =
+    useMarkAsSpam();
+
   if (isLoading) {
     return <p>Cargando llamadas...</p>;
   }
@@ -86,9 +108,14 @@ export default function CallList({ calls, isLoading }: Props) {
                     </div>
                   </div>
                 </td>
-                <td> {call.duration} </td>
+                <td className="flex justify-center">
+                  <div className="flex items-center gap-1 text-xs">
+                    <Clock size={15} color="gray" />
+                    {formatTime(call.duration)}
+                  </div>
+                </td>
                 <td>
-                  <div className="flex items-center justify-center">
+                  <div className="flex justify-center">
                     <a
                       href={call.recording_url}
                       target="_blank"
@@ -101,9 +128,16 @@ export default function CallList({ calls, isLoading }: Props) {
                 </td>
                 <td>{formatDate(call.created_at)}</td>
                 <td>
-                  <ButtonSpam disabled={call.is_spam}>
+                  <ButtonSpam
+                    disabled={call.is_spam || isLoadingCheckSpam}
+                    onClick={() => handleMarkSpam(call.call_id)}
+                  >
                     <TriangleAlert size={15} className="mr-1" />
-                    {call.is_spam ? "SPAM" : "Marcar como spam"}
+                    {call.is_spam
+                      ? "SPAM"
+                      : isLoadingCheckSpam
+                        ? "Procesando..."
+                        : "Marcar como spam"}
                   </ButtonSpam>
                 </td>
               </tr>
@@ -111,6 +145,13 @@ export default function CallList({ calls, isLoading }: Props) {
           )}
         </tbody>
       </table>
+
+      <Paginator
+        currentPage={currentPage}
+        lastPage={lastPage}
+        onPageChange={onPageChange}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

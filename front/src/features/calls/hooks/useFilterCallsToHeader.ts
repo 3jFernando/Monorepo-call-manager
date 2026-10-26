@@ -1,23 +1,29 @@
-import { Call } from '@/features/calls/types';
+import { useGetDashboardData } from '@/features/calls/hooks/useGetDashboardData';
 
-export default function useFilterCallsToHeader(calls: Call[]) {
-    const spams = calls.filter((call) => call.is_spam).length || 0;
-    const hasCallsBefore = calls.filter((call) => call.has_called_before).length || 0;
-    const lastThreeCallsAgents = [...new Set(calls.map((call) => call.agent))].slice(0, 3);
+export default function useFilterCallsToHeader() {
+    const { data: dashboardData, isLoading } = useGetDashboardData();
+
+    const last10Minutes = dashboardData?.last_10_minutes || 0;
+    const spamCount = dashboardData?.spam_count || 0;
+    const top3Agents = dashboardData?.top_3_agents || [];
+    const totalCalls = dashboardData?.total_calls || 0;
 
     return {
-        totalCalls: calls.length,
-        spams: {
-            value: `${spams} / ${calls.length}`,
-            period: `${(spams / calls.length * 100).toFixed(0)}%`
+        last10Minutes: {
+            value: isLoading ? 'Cargando...' : last10Minutes,
+            period: 'En los últimos 10 minutos'
         },
-        hasCallsBefore: {
-            value: `${hasCallsBefore} / ${calls.length}`,
-            period: `${(hasCallsBefore / calls.length * 100).toFixed(0)}%`
+        spamCount: {
+            value: isLoading ? 'Cargando...' : `${ spamCount } / ${totalCalls}`,
+            period: `${(spamCount / totalCalls * 100).toFixed(0)}%`
         },
-        lastThreeCallsAgents: {
-            value: lastThreeCallsAgents.length || 0,
-            period: lastThreeCallsAgents.join(', ')
+        top3Agents: {
+            value: 3,
+            period: isLoading ? 'Cargando...' : top3Agents.length > 0 ? top3Agents : "No hay agentes recientes"
+        },
+        totalCalls: {
+            value: isLoading ? 'Cargando...' : totalCalls,
+            period: "Llamadas totales"
         }
-    };
+    }; 
 }
