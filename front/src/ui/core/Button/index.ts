@@ -1,1 +1,1 @@
-export { default as ButtonSpam } from './ButtonSpam'
+export { default as Button } from '@/ui/core/Button/Button'

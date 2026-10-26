@@ -1,0 +1,1 @@
+export { default as ButtonSpam } from '@/ui/core/ButtonSpam/ButtonSpam'

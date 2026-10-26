@@ -1,0 +1,1 @@
+export { default as Paginator } from '@/ui/navigation/Paginator/Paginator'
