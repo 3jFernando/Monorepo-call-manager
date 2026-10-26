@@ -3,6 +3,7 @@
 use App\Domain\Entities\CallSession;
 use App\Domain\ValueObjects\CallId;
 use App\Domain\ValueObjects\PhoneNumber;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface CallRepositoryInterface 
 {
@@ -12,5 +13,7 @@ interface CallRepositoryInterface
 
     public function existsByPhoneNumber(PhoneNumber $phoneNumber): bool;
   
-    public function getRecentCalls(int $limit = 15): array;
+    public function getCalls(int $page = 1, int $perPage = 10): LengthAwarePaginator;
+
+    public function getDashBoardData(): ?object;
 }

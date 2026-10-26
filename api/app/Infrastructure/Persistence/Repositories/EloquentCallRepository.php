@@ -6,6 +6,9 @@ use App\Domain\ValueObjects\CallId;
 use App\Domain\ValueObjects\PhoneNumber;
 use App\Infrastructure\Persistence\Models\CallModel;
 use DateTimeImmutable;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class EloquentCallRepository implements CallRepositoryInterface
 {
@@ -39,14 +42,35 @@ class EloquentCallRepository implements CallRepositoryInterface
         return $this->model::where('phone_number', $phoneNumber->value)->exists();
     }
 
-    public function getRecentCalls(int $limit = 30): array
+    public function getCalls(int $page = 1, int $perPage = 10): LengthAwarePaginator
     {
         return $this->model::query()
-            ->latest('id')
-            ->limit($limit)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page)
+            ->through(fn (CallModel $model) => $this->toEntityDomain($model));
+    }
+
+    public function getDashBoardData(): ?object
+    {
+        $totals = $this->model::select(
+            DB::raw("
+                COUNT(*) as total_calls,
+                COUNT(CASE WHEN created_at >= NOW() - INTERVAL '10 minutes' THEN 1 END) as last_10_minutes,
+                COUNT(CASE WHEN is_spam = true THEN 1 END) as spam_count
+            ")
+        )->first();
+
+        $topThreeAgents = CallModel::query()
+            ->select('agent', DB::raw('COUNT(*) as total_llamadas'))
+            ->whereNotNull('agent')
+            ->groupBy('agent')
+            ->orderByDesc('total_llamadas')
+            ->limit(3)
             ->get()
-            ->map(fn (CallModel $model) => $this->toEntityDomain($model))
-            ->all();
+            ->pluck('agent')->implode(', ');
+
+        $totals->top_3_agents = $topThreeAgents;
+        return $totals;
     }
 
     private function toEntityDomain(CallModel $model): CallSession

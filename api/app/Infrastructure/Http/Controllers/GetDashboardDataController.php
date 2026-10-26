@@ -3,18 +3,17 @@
 use Illuminate\Http\JsonResponse;
 
 use App\Domain\Repositories\CallRepositoryInterface;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class RecentsCallsController
+class GetDashboardDataController
 {
 
     public function __construct(private readonly CallRepositoryInterface $repository)
     {}
 
-    public function __invoke(): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        $getRecentCalls = $this->repository->getRecentCalls();
-
-        return Response::apiResponse(data: $getRecentCalls);
+        return Response::apiResponse(data: $this->repository->getDashboardData());
     }
 }
